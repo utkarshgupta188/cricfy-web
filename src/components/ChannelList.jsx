@@ -57,49 +57,48 @@ export default function ChannelList({ channels, providerTitle, onSelect }) {
         {filtered.map((ch, i) => (
           <div
             key={i}
-            className={`card channel-card glass-premium magnetic-card animate-fade-in ${ch.isDrm ? 'drm-exclusive' : ''}`}
+            className={`channel-card glass-premium magnetic-card animate-fade-in ${ch.isDrm ? 'drm-exclusive' : ''}`}
             onClick={() => onSelect(ch)}
             style={{ animationDelay: `${i * 0.05}s` }}
           >
-            <div className="card-top">
+            <div className="card-status-bar">
+              {ch.isDrm && <span className="mini-badge drm">DRM</span>}
+              <span className="mini-badge live">LIVE</span>
+            </div>
+
+            <div className="logo-container-large">
               {ch.tvgLogo ? (
-                <div className="logo-wrapper">
-                  <img
-                    className="channel-logo"
-                    src={ch.tvgLogo}
-                    alt={ch.title}
-                    onError={(e) => {
-                      e.target.parentElement.classList.add('logo-error');
-                    }}
-                  />
+                <img
+                  className="main-logo"
+                  src={ch.tvgLogo}
+                  alt={ch.title}
+                  loading="lazy"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div className="logo-fallback" style={{ display: ch.tvgLogo ? 'none' : 'flex' }}>
+                {ch.title.charAt(0)}
+              </div>
+              
+              <div className="hover-play-overlay">
+                <div className="play-icon-circle">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
                 </div>
-              ) : (
-                <div className="channel-logo-placeholder">
-                  <span>{ch.title.charAt(0)}</span>
-                </div>
-              )}
-              <div className="channel-indicators">
-                {ch.isDrm && <span className="badge-exclusive">DRM</span>}
-                <span className="badge-live">LIVE</span>
               </div>
             </div>
             
-            <div className="card-body">
-              <h3>{ch.title}</h3>
+            <div className="channel-info-minimal">
+              <h3 className="channel-name-premium">{ch.title}</h3>
               {ch.groupTitle && (
-                <span className="category-tag">
+                <span className="channel-category-dim">
                   {ch.groupTitle}
                 </span>
               )}
-            </div>
-
-            <div className="card-action">
-              <span className="play-button">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-                Watch Now
-              </span>
             </div>
           </div>
         ))}
