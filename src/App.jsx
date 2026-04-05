@@ -109,8 +109,8 @@ function App() {
         <div className="header-right">
           <span className="badge">
             {view === 'providers' ? `${providers.length} Providers` :
-             view === 'channels' ? `${channels.length} Channels` :
-             'Now Playing'}
+              view === 'channels' ? `${channels.length} Channels` :
+                'Now Playing'}
           </span>
         </div>
       </header>

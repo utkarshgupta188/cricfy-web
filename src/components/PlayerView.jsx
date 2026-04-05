@@ -178,7 +178,7 @@ export default function PlayerView({ channel }) {
         await player.load(channel.url);
 
         if (!destroyed) {
-          video.play().catch(() => {});
+          video.play().catch(() => { });
           setIsLoading(false);
         }
       } catch (err) {
@@ -197,11 +197,11 @@ export default function PlayerView({ channel }) {
     return () => {
       destroyed = true;
       if (playerRef.current) {
-        playerRef.current.destroy().catch(() => {});
+        playerRef.current.destroy().catch(() => { });
         playerRef.current = null;
       }
       if (uiRef.current) {
-        uiRef.current.destroy().catch(() => {});
+        uiRef.current.destroy().catch(() => { });
         uiRef.current = null;
       }
     };
