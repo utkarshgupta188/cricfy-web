@@ -636,12 +636,60 @@ h1, h2, h3, h4, .premium-font {
   transform: scale(1.2);
 }
 
-/* === FILTERS === */
+/* === FILTERS & RIBBON === */
 .filters {
   display: flex;
-  gap: 16px;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.genre-ribbon-container {
+  margin-bottom: 40px;
+  position: relative;
+  /* Smooth fade-out edges */
+  mask-image: linear-gradient(to right, transparent, white 5%, white 95%, transparent);
+}
+
+.genre-ribbon {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 12px 32px; /* Extra padding for edge scrolling */
+  scroll-behavior: smooth;
+  -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+}
+
+/* Hide scrollbar for Chrome/Safari */
+.genre-ribbon::-webkit-scrollbar {
+  display: none;
+}
+
+.genre-tab {
+  white-space: nowrap;
+  padding: 12px 24px;
+  border-radius: 50px;
+  border: 1px solid var(--border);
+  background: var(--glass);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.5px;
+}
+
+.genre-tab:hover {
+  background: var(--glass-heavy);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.genre-tab.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 0 25px var(--accent-glow);
 }
 
 .search-box {
@@ -649,11 +697,10 @@ h1, h2, h3, h4, .premium-font {
   align-items: center;
   gap: 14px;
   flex: 1;
-  min-width: 300px;
-  padding: 14px 20px;
+  padding: 14px 24px;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: 50px; /* Fully rounded search */
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
 }

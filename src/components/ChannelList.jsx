@@ -24,7 +24,7 @@ export default function ChannelList({ channels, providerTitle, onSelect }) {
     <div className="channel-list">
       <h2 className="section-title">{providerTitle} Channels</h2>
 
-      <div className="filters">
+      <div className="filters animate-fade-in">
         <div className="search-box glass-premium">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <circle cx="11" cy="11" r="8" />
@@ -37,19 +37,20 @@ export default function ChannelList({ channels, providerTitle, onSelect }) {
             onChange={(e) => setFilter(e.target.value)}
           />
         </div>
-        {groups.length > 2 && (
-          <select
-            className="group-select glass-premium"
-            value={groupFilter}
-            onChange={(e) => setGroupFilter(e.target.value)}
-          >
-            {groups.map((g) => (
-              <option key={g} value={g}>
-                {g === 'all' ? 'All Groups' : g}
-              </option>
-            ))}
-          </select>
-        )}
+      </div>
+
+      <div className="genre-ribbon-container animate-fade-in">
+        <div className="genre-ribbon">
+          {groups.map((g) => (
+            <button
+              key={g}
+              className={`genre-tab glass-premium ${groupFilter === g ? 'active' : ''}`}
+              onClick={() => setGroupFilter(g)}
+            >
+              {g === 'all' ? 'All Channels' : g}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="grid channels-grid animated-grid">
