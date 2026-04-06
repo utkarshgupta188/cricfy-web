@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import CryptoJS from 'crypto-js';
 import axios from 'axios';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app = express();
 app.use(cors());
@@ -303,6 +305,14 @@ app.get('/api/proxy', async (req, res) => {
     console.error(`Proxy ${status}:`, e.message, '→', req.query.url?.substring(0, 100));
     res.status(status).json({ error: 'Proxy failed', detail: e.message });
   }
+});
+
+// Setup static file serving for Electron builds
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use(express.static(path.join(__dirname, 'dist')));
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 const PORT = 3001;

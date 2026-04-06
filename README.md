@@ -48,6 +48,14 @@ npm run dev:all
 *   **Frontend**: [http://localhost:5173](http://localhost:5173)
 *   **Backend Proxy**: [http://localhost:3001](http://localhost:3001)
 
+### 4. Desktop App (Electron)
+You can package CricfyTV into a fully standalone Windows desktop application:
+1. Build the production files and generate the executable:
+   ```bash
+   npm run electron:build
+   ```
+2. The packaged installers and portable executables will be available in the `release/` directory.
+
 ---
 
 ## 🏛 Architecture
