@@ -12,10 +12,6 @@ jobs:
     # Needs permission to upload assets to the release
     permissions:
       contents: write
-    
-    env:
-      GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-      GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
     steps:
       - name: Check out Git repository
@@ -30,9 +26,11 @@ jobs:
         shell: bash
         run: npm install || npm install || npm install
 
-      # This runs `vite build && electron-builder` based on package.json
+      # This runs `vite build && electron-builder` and we force it NOT to publish internally
       - name: Build Web App and Package Electron
-        run: npm run electron:build
+        run: npm run electron:build -- --publish never
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
       # Upload the installers and portable executables to the tag/release
       - name: Upload Release Assets
@@ -41,3 +39,5 @@ jobs:
         with:
           files: |
             release/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
