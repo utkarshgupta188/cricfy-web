@@ -23,7 +23,10 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install
+        shell: bash
+        run: npm install || npm install || npm install
+        env:
+          ELECTRON_GET_USE_PROXY: "true"
 
       # This runs `vite build && electron-builder` based on package.json
       - name: Build Web App and Package Electron
