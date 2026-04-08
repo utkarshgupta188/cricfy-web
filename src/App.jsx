@@ -164,6 +164,10 @@ function App() {
           <PlayerView channel={selectedChannel} />
         )}
       </main>
+
+      <footer style={{ textAlign: 'center', padding: '1.5rem', color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', zIndex: 10, position: 'relative' }}>
+        Made by Utkarsh Gupta (<a href="https://github.com/utkarshgupta188" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: '500' }}>@utkarshgupta188</a>)
+      </footer>
     </div>
   );
 }

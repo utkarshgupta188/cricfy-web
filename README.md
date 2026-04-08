@@ -68,3 +68,9 @@ You can package CricfyTV into a fully standalone Windows desktop application:
 
 ## 📄 License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+  <b>Made by Utkarsh Gupta (<a href="https://github.com/utkarshgupta188">@utkarshgupta188</a>)</b>
+</div>
