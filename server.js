@@ -9,11 +9,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- Secrets from the Kodi addon ---
 const SECRET1 = '3368487a78594167534749382f68616d:557143766b766a656345497a38343256';
 const SECRET2 = '4d7165594743543441594b6f484b7254:6f484b725451755078387a6c386f4a2b';
 
-// Firebase config
 const FIREBASE_API_KEY = 'AIzaSyAh9jkEU0E_UYxH0m_BKAt-uUSTiTPqhb8';
 const FIREBASE_APP_ID = '1:963020218535:android:47ec53252c64fb3c9c7b82';
 const PROJECT_NUMBER = '963020218535';
@@ -25,7 +23,17 @@ const CUSTOM_HEADERS = {
   'Cache-Control': 'no-cache, no-store',
 };
 
-// --- Crypto Helpers ---
+const BROKEN_PROVIDERS = [
+  'JIO IND', 'SHOOQ PK', 'SAMSUNG TV', 
+  'FANCODE BD 3', 'PRIME LIVE', 'IZZI GO', 'FANCODE BD', 'ZEE5 IN 2',
+  'CRICHD', 'ROAR ZONE', 'JIO CINEMA IND', 'WORLD TV', 'DEKHO 24 X 7', 'ICC TV', 'SONY BD',
+  'SUN DIRECT', 'TAPMAD PK', 'World Sports', 'FANCODE BD 2',
+  'ZEE5 IN', 'JIOLIVE IND', 'LGTV IND', 'Prime Channel',
+  'TATAPLAY BD', 'VOOT BD', 'AYNA', 'WORLD TV', 'JAGOBD', 'JADOO', 'TOFFEE BD',
+  'AKASH', 'BDIX TV', 'AYNA 2', 'DARK TV', 'ZAP SPORTS',
+  'JIO IND2', 'JIO BD', 'Movies & Series'
+];
+
 function hexToBytes(hex) {
   const bytes = [];
   for (let i = 0; i < hex.length; i += 2) {
@@ -99,7 +107,6 @@ function decryptContent(content) {
   }
 }
 
-// --- M3U Parser ---
 function parseM3U(content) {
   const lines = content.split('\n');
   const items = [];
@@ -165,9 +172,6 @@ function parseM3U(content) {
   return items;
 }
 
-// --- API Routes ---
-
-// Get API URL from Firebase Remote Config
 app.get('/api/config', async (req, res) => {
   try {
     const url = `https://firebaseremoteconfig.googleapis.com/v1/projects/${PROJECT_NUMBER}/namespaces/firebase:fetch`;
@@ -204,7 +208,6 @@ app.get('/api/config', async (req, res) => {
   }
 });
 
-// Fetch providers
 app.get('/api/providers', async (req, res) => {
   try {
     const { apiUrl } = req.query;
@@ -214,7 +217,24 @@ app.get('/api/providers', async (req, res) => {
     const decrypted = decryptData(response.data);
     if (!decrypted) return res.status(500).json({ error: 'Decryption failed' });
 
-    const providers = JSON.parse(decrypted);
+    let providers = JSON.parse(decrypted);
+
+    if (Array.isArray(providers)) {
+      providers = providers.filter(p => {
+        const title = p.title || '';
+        const link = p.catLink || '';
+
+        const lowerTitle = title.trim().toLowerCase();
+
+        const isBlocked = BROKEN_PROVIDERS.some(b => b.trim().toLowerCase() === lowerTitle) || lowerTitle.includes('samsung tv');
+        if (isBlocked) return false;
+
+        if (!link.startsWith('http')) return false;
+
+        return true;
+      });
+    }
+
     res.json(providers);
   } catch (e) {
     console.error('Providers error:', e.message);
@@ -222,7 +242,6 @@ app.get('/api/providers', async (req, res) => {
   }
 });
 
-// Fetch channels for a provider
 app.get('/api/channels', async (req, res) => {
   try {
     const { providerUrl } = req.query;
@@ -238,8 +257,6 @@ app.get('/api/channels', async (req, res) => {
   }
 });
 
-// Universal proxy — forwards all requests with correct headers
-// Shaka Player's networking engine routes all requests here with fully resolved URLs
 app.get('/api/proxy', async (req, res) => {
   try {
     const { url, referer, userAgent, cookie, ...extraHeaders } = req.query;
@@ -248,20 +265,16 @@ app.get('/api/proxy', async (req, res) => {
     let finalUrl = url;
     if (cookie && cookie.includes('__hdnea__')) {
       try {
-        // Extract the __hdnea__ value from the cookie
         const cookieMatch = cookie.match(/__hdnea__=([^;]+)/);
         if (cookieMatch && cookieMatch[1]) {
           const freshToken = cookieMatch[1];
-          // Replace using string operations to prevent URL-encoding the ~ and = characters
           if (finalUrl.includes('__hdnea__')) {
             finalUrl = finalUrl.replace(/__hdnea__=[^&]+/, '__hdnea__=' + freshToken);
           } else {
             finalUrl += (finalUrl.includes('?') ? '&' : '?') + '__hdnea__=' + freshToken;
           }
         }
-      } catch (e) {
-        // ignore invalid URL
-      }
+      } catch (e) { }
     }
 
     const headers = { ...CUSTOM_HEADERS };
@@ -271,12 +284,10 @@ app.get('/api/proxy', async (req, res) => {
     if (referer) {
       try { headers['Origin'] = new URL(referer).origin; } catch { }
     }
-    // Forward any extra headers from the M3U metadata
     for (const [k, v] of Object.entries(extraHeaders)) {
       if (k !== 'url') headers[k] = v;
     }
 
-    // Log the first request of each type for debugging
     const urlShort = finalUrl.length > 120 ? finalUrl.substring(0, 120) + '...' : finalUrl;
     console.log(`Proxy →`, urlShort);
 
@@ -287,14 +298,12 @@ app.get('/api/proxy', async (req, res) => {
       maxRedirects: 10,
     });
 
-    // Forward all response headers that matter
     const contentType = response.headers['content-type'] || 'application/octet-stream';
     res.set('Content-Type', contentType);
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Headers', '*');
     res.set('Access-Control-Expose-Headers', '*');
 
-    // Cache segment data for better performance
     if (!contentType.includes('mpd') && !contentType.includes('m3u') && !contentType.includes('xml')) {
       res.set('Cache-Control', 'public, max-age=5');
     }
@@ -307,7 +316,6 @@ app.get('/api/proxy', async (req, res) => {
   }
 });
 
-// Setup static file serving for Electron builds
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, 'dist')));

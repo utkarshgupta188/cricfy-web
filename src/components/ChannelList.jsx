@@ -1,8 +1,13 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+
+const INITIAL_BATCH = 60;
+const BATCH_SIZE = 40;
 
 export default function ChannelList({ channels, providerTitle, onSelect }) {
   const [filter, setFilter] = useState('');
   const [groupFilter, setGroupFilter] = useState('all');
+  const [visibleCount, setVisibleCount] = useState(INITIAL_BATCH);
+  const observerTarget = useRef(null);
 
   const groups = useMemo(() => {
     const g = new Set();
@@ -19,6 +24,31 @@ export default function ChannelList({ channels, providerTitle, onSelect }) {
       return matchName && matchGroup;
     });
   }, [channels, filter, groupFilter]);
+
+  // Reset visible count when filter or channels change
+  useEffect(() => {
+    setVisibleCount(INITIAL_BATCH);
+  }, [filter, groupFilter, channels]);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && visibleCount < filtered.length) {
+          setVisibleCount((prev) => prev + BATCH_SIZE);
+        }
+      },
+      { threshold: 0.1, rootMargin: '200px' }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [visibleCount, filtered.length]);
+
+  const displayedChannels = filtered.slice(0, visibleCount);
 
   return (
     <div className="channel-list">
@@ -54,12 +84,15 @@ export default function ChannelList({ channels, providerTitle, onSelect }) {
       </div>
 
       <div className="grid channels-grid animated-grid">
-        {filtered.map((ch, i) => (
+        {displayedChannels.map((ch, i) => (
           <div
-            key={i}
+            key={`${ch.title}-${i}`}
             className={`channel-card glass-premium magnetic-card animate-fade-in ${ch.isDrm ? 'drm-exclusive' : ''}`}
             onClick={() => onSelect(ch)}
-            style={{ animationDelay: `${i * 0.05}s` }}
+            style={{ 
+              // Only stagger animations for the first batch to avoid CPU spikes
+              animationDelay: i < 50 ? `${i * 0.05}s` : '0s' 
+            }}
           >
             <div className="card-status-bar">
               {ch.isDrm && <span className="mini-badge drm">DRM</span>}
@@ -103,6 +136,13 @@ export default function ChannelList({ channels, providerTitle, onSelect }) {
           </div>
         ))}
       </div>
+
+      {visibleCount < filtered.length && (
+        <div ref={observerTarget} className="scroll-sentinel">
+          <div className="spinner"></div>
+          <p>Loading more channels...</p>
+        </div>
+      )}
 
       {filtered.length === 0 && (
         <div className="empty-state">
