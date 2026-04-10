@@ -9,7 +9,6 @@ function buildProxyUrl(originalUrl, channel) {
   if (channel.referer) params.set('referer', channel.referer);
   if (channel.userAgent) params.set('userAgent', channel.userAgent);
   if (channel.cookie) params.set('cookie', channel.cookie);
-  // Forward any extra headers from the M3U metadata
   if (channel.headers && typeof channel.headers === 'object') {
     for (const [k, v] of Object.entries(channel.headers)) {
       params.set(k, v);
@@ -42,7 +41,6 @@ export default function PlayerView({ channel }) {
       setPlayerError(null);
 
       try {
-        // Clean up previous instances
         if (uiRef.current) {
           await uiRef.current.destroy();
           uiRef.current = null;
@@ -59,7 +57,6 @@ export default function PlayerView({ channel }) {
         await player.attach(video);
         playerRef.current = player;
 
-        // Set up the UI overlay on the wrapper specifically to keep controls contained
         const ui = new shaka.ui.Overlay(player, wrapperRef.current, video);
         uiRef.current = ui;
         ui.configure({
@@ -77,7 +74,6 @@ export default function PlayerView({ channel }) {
 
         player.addEventListener('error', (event) => {
           console.error('Shaka player error:', event.detail);
-          // Only show overlay for critical errors
           if (event.detail && event.detail.severity !== shaka.util.Error.Severity.CRITICAL) {
             console.warn('Ignored non-critical Shaka error:', event.detail.code);
             return;
@@ -87,20 +83,17 @@ export default function PlayerView({ channel }) {
           }
         });
 
-        // Configure ClearKey DRM
         if (channel.isDrm && channel.licenseString) {
           const drmConfig = parseLicenseString(channel.licenseString, channel);
           console.log('DRM config:', drmConfig, 'license:', channel.licenseString);
           if (drmConfig) {
             if (drmConfig.type === 'clearkeys') {
-              // Direct ClearKey: keyid:key pair
               player.configure({
                 drm: {
                   clearKeys: drmConfig.clearKeys,
                 },
               });
             } else if (drmConfig.type === 'license_server') {
-              // ClearKey license server URL — proxy through backend
               const proxyLicenseUrl = buildProxyUrl(drmConfig.serverUrl, channel);
               player.configure({
                 drm: {
@@ -113,7 +106,6 @@ export default function PlayerView({ channel }) {
           }
         }
 
-        // Streaming config
         player.configure({
           streaming: {
             bufferingGoal: 30,
@@ -134,23 +126,14 @@ export default function PlayerView({ channel }) {
           },
         });
 
-        // NETWORK ENGINE: Proxy all requests via backend with proper URL resolution
-        // 
-        // Strategy:
-        // 1. REQUEST FILTER: Save original URL, then rewrite to proxy URL
-        // 2. RESPONSE FILTER: Restore original URL in response so Shaka resolves
-        //    relative segment URLs against the real CDN, not our proxy
         const netEngine = player.getNetworkingEngine();
 
         if (netEngine) {
-          // Track original URLs so we can restore them in the response
           const originalUrls = new Map();
 
-          // REQUEST FILTER: Redirect all external URLs through our proxy
           netEngine.registerRequestFilter((type, request, context) => {
             for (let i = 0; i < request.uris.length; i++) {
               const uri = request.uris[i];
-              // Only proxy external URLs, skip localhost
               if (uri.includes('localhost')) continue;
               if (uri.startsWith('http://') || uri.startsWith('https://')) {
                 const proxyUrl = buildProxyUrl(uri, channel);
@@ -160,11 +143,9 @@ export default function PlayerView({ channel }) {
             }
           });
 
-          // RESPONSE FILTER: Tell Shaka the real URI so relative URLs resolve correctly
           netEngine.registerResponseFilter((type, response, context) => {
             if (response.uri && originalUrls.has(response.uri)) {
               response.uri = originalUrls.get(response.uri);
-              // Clean up to avoid memory leak (keep last 100 entries)
               if (originalUrls.size > 1000) {
                 const keys = [...originalUrls.keys()];
                 for (let i = 0; i < keys.length - 100; i++) {
@@ -177,8 +158,6 @@ export default function PlayerView({ channel }) {
 
         if (destroyed) return;
 
-        // Load the ORIGINAL stream URL — the request filter proxies it,
-        // and the response filter ensures Shaka sees the real CDN URL
         console.log('Loading stream:', channel.url);
 
         await player.load(channel.url);
@@ -314,7 +293,6 @@ function base64UrlToHex(base64Url) {
 function parseLicenseString(licenseString, channel) {
   if (!licenseString) return null;
 
-  // Case 1: License server URL (e.g., http://...)
   if (licenseString.startsWith('http')) {
     return {
       type: 'license_server',
@@ -322,7 +300,6 @@ function parseLicenseString(licenseString, channel) {
     };
   }
 
-  // Case 2: JSON-based JWK format (used by JioTV+)
   try {
     const rawJson = licenseString.trim();
     if (rawJson.startsWith('{') && rawJson.endsWith('}')) {
@@ -341,14 +318,10 @@ function parseLicenseString(licenseString, channel) {
         }
       }
     }
-  } catch (e) {
-    // Ignore JSON parse errors and fall back to hex pair parsing
-  }
+  } catch (e) { }
 
-  // Case 3: Direct hex key pair — matches Kodi's regex: ^[0-9a-fA-F]+:[0-9a-fA-F]+$
   const hexPairRegex = /^[0-9a-fA-F]+:[0-9a-fA-F]+$/;
 
-  // Try splitting by | first (Kodi DRM format: system|keys|headers)
   const parts = licenseString.split('|').filter((p) => p.trim());
   for (const part of parts) {
     const trimmed = part.trim();
@@ -358,7 +331,6 @@ function parseLicenseString(licenseString, channel) {
     }
   }
 
-  // Try direct match without pipe separators
   if (hexPairRegex.test(licenseString.trim())) {
     const [keyId, key] = licenseString.trim().split(':').map((s) => s.trim().toLowerCase());
     return { type: 'clearkeys', clearKeys: { [keyId]: key } };

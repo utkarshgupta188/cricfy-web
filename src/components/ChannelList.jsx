@@ -25,12 +25,10 @@ export default function ChannelList({ channels, providerTitle, onSelect }) {
     });
   }, [channels, filter, groupFilter]);
 
-  // Reset visible count when filter or channels change
   useEffect(() => {
     setVisibleCount(INITIAL_BATCH);
   }, [filter, groupFilter, channels]);
 
-  // Infinite scroll observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -90,7 +88,6 @@ export default function ChannelList({ channels, providerTitle, onSelect }) {
             className={`channel-card glass-premium magnetic-card animate-fade-in ${ch.isDrm ? 'drm-exclusive' : ''}`}
             onClick={() => onSelect(ch)}
             style={{ 
-              // Only stagger animations for the first batch to avoid CPU spikes
               animationDelay: i < 50 ? `${i * 0.05}s` : '0s' 
             }}
           >

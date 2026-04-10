@@ -2,7 +2,6 @@ import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Start the Express backend server
 import './server.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -13,16 +12,13 @@ function createWindow() {
     width: 1280,
     height: 720,
     title: 'CricfyTV',
-    autoHideMenuBar: true, // Hides the default menu
+    autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true
     }
   });
 
-  // Load the web app which will point to our Express backend
-  // We use our express backend to serve both the API and the static files
-  // Give the server a small moment to boot up and bind to port 3001
   setTimeout(() => {
     mainWindow.loadURL('http://localhost:3001');
   }, 500);
