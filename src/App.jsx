@@ -120,11 +120,6 @@ function App() {
           </div>
         </div>
         <div className="header-right">
-          <div className="badge glass-premium ripple">
-            {view === 'providers' ? 'Discovery' :
-              view === 'channels' ? 'Live Channels' :
-                'Cinema Mode'}
-          </div>
         </div>
       </header>
 

@@ -27,7 +27,7 @@ const BROKEN_PROVIDERS = [
   'JIO IND', 'SHOOQ PK', 'SAMSUNG TV',
   'FANCODE BD 3', 'PRIME LIVE', 'IZZI GO', 'FANCODE BD', 'ZEE5 IN 2',
   'CRICHD', 'ROAR ZONE', 'JIO CINEMA IND', 'WORLD TV', 'DEKHO 24 X 7', 'ICC TV', 'SONY BD',
-  'SUN DIRECT', 'TAPMAD PK', 'World Sports', 'FANCODE BD 2',
+  'SUN DIRECT', 'TAPMAD PK', 'World Sports', 'FANCODE BD 2', 'SONYLIV',
   'ZEE5 IN', 'JIOLIVE IND', 'LGTV IND', 'Prime Channel',
   'TATAPLAY BD', 'VOOT BD', 'AYNA', 'WORLD TV', 'JAGOBD', 'JADOO', 'TOFFEE BD',
   'AKASH', 'BDIX TV', 'AYNA 2', 'DARK TV', 'ZAP SPORTS',
@@ -226,7 +226,9 @@ app.get('/api/providers', async (req, res) => {
 
         const lowerTitle = title.trim().toLowerCase();
 
-        const isBlocked = BROKEN_PROVIDERS.some(b => b.trim().toLowerCase() === lowerTitle) || lowerTitle.includes('samsung tv');
+        const isBlocked = BROKEN_PROVIDERS.some(b => b.trim().toLowerCase() === lowerTitle) || 
+                          lowerTitle.includes('samsung tv') || 
+                          lowerTitle.includes('sonyliv');
         if (isBlocked) return false;
 
         if (!link.startsWith('http')) return false;
