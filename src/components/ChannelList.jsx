@@ -60,7 +60,7 @@ export default function ChannelList({
 
       <div className="filters animate-fade-in">
         <div className="search-box glass-premium">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8" />
             <path d="M21 21l-4.35-4.35" />
           </svg>
@@ -75,11 +75,12 @@ export default function ChannelList({
 
       <div className="genre-ribbon-container animate-fade-in">
         <div className="genre-ribbon">
-          {groups.map((g) => (
+          {groups.map((g, idx) => (
             <button
               key={g}
               className={`genre-tab glass-premium ${groupFilter === g ? 'active' : ''}`}
               onClick={() => setGroupFilter(g)}
+              style={{ animationDelay: `${idx * 0.05}s` }}
             >
               {g === 'all' ? 'All Channels' : g}
             </button>
@@ -87,14 +88,14 @@ export default function ChannelList({
         </div>
       </div>
 
-      <div className="grid channels-grid animated-grid">
+      <div className="grid channels-grid">
         {displayedChannels.map((ch, i) => (
           <div
             key={`${ch.title}-${i}`}
-            className={`channel-card glass-premium magnetic-card animate-fade-in ${ch.isDrm ? 'drm-exclusive' : ''}`}
+            className={`channel-card glass-premium animate-fade-in ${ch.isDrm ? 'drm-exclusive' : ''}`}
             onClick={() => onSelect(ch)}
             style={{ 
-              animationDelay: i < 50 ? `${i * 0.05}s` : '0s' 
+              animationDelay: i < 50 ? `${i * 0.04}s` : '0s' 
             }}
           >
             <div className="card-status-bar">
@@ -121,7 +122,7 @@ export default function ChannelList({
               
               <div className="hover-play-overlay">
                 <div className="play-icon-circle">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 </div>

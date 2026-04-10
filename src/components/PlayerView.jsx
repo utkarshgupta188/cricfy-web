@@ -193,40 +193,40 @@ export default function PlayerView({ channel }) {
   }, [channel]);
 
   return (
-    <div className="player-view animate-fade-in">
+    <>
       <div className="player-header">
         <div className="player-title-section">
           <h2 className="premium-font">{channel.title}</h2>
           <div className="player-meta-tags">
-            {channel.groupTitle && <span className="category-tag glass-premium">{channel.groupTitle}</span>}
-            {channel.isDrm && <span className="badge-exclusive glass-premium">SECURE DRM</span>}
-            <span className="badge-live-pulse glass-premium">
+            {channel.groupTitle && <span className="genre-tab glass-premium" style={{ pointerEvents: 'none' }}>{channel.groupTitle}</span>}
+            {channel.isDrm && <span className="card-badge" style={{ position: 'static' }}>SECURE DRM</span>}
+            <div className="badge-live-pulse">
               <span className="pulse-dot"></span>
               LIVE STREAM
-            </span>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="player-main-container" ref={containerRef}>
         <div className="player-atmosphere"></div>
-        <div className="player-wrapper glass-premium" ref={wrapperRef}>
+        <div className="player-wrapper" ref={wrapperRef}>
           {isLoading && (
             <div className="player-overlay loading-overlay">
               <div className="spinner"></div>
-              <p>Initializing Secure Stream...</p>
+              <p>Establishing Secure Connection...</p>
             </div>
           )}
           {playerError && (
             <div className="player-overlay error-overlay">
               <span className="error-icon">⚠️</span>
-              <h3>Playback Error</h3>
+              <h3 className="premium-font">Playback Unavailable</h3>
               <p>{playerError}</p>
               <button
                 className="btn-primary"
                 onClick={() => window.location.reload()}
               >
-                Try Again
+                Reconnect Stream
               </button>
             </div>
           )}
@@ -239,41 +239,44 @@ export default function PlayerView({ channel }) {
         </div>
       </div>
 
-      <div className="player-details-section grid">
+      <div className="player-details-section">
         <div className="details-card glass-premium">
           <div className="card-header">
-            <h4 className="premium-font">Technical Metadata</h4>
-            <span className="status-dot online"></span>
+            <h4 className="premium-font">Stream Intelligence</h4>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className="meta-label" style={{ margin: 0 }}>Network Status</span>
+              <span className="status-dot online"></span>
+            </div>
           </div>
           <div className="metadata-grid">
             <div className="meta-item">
-              <span className="meta-label">Source URL</span>
+              <span className="meta-label">Primary Source</span>
               <span className="meta-value" title={channel.url}>{truncateUrl(channel.url)}</span>
             </div>
             {channel.referer && (
               <div className="meta-item">
-                <span className="meta-label">Referer Header</span>
+                <span className="meta-label">Request Origin</span>
                 <span className="meta-value">{channel.referer}</span>
               </div>
             )}
             <div className="meta-item">
-              <span className="meta-label">Protection</span>
-              <span className="meta-value">{channel.isDrm ? 'ClearKey AES-128' : 'None (Unencrypted)'}</span>
+              <span className="meta-label">Encryption Type</span>
+              <span className="meta-value">{channel.isDrm ? 'ClearKey AES-128 (Secure)' : 'Open Stream (Unencrypted)'}</span>
+            </div>
+            <div className="meta-item">
+              <span className="meta-label">Playback Engine</span>
+              <span className="meta-value">Shaka Pro v5.0.9</span>
             </div>
             {channel.licenseString && (
               <div className="meta-item">
-                <span className="meta-label">KID:KEY Mapping</span>
+                <span className="meta-label">DRM Context</span>
                 <span className="meta-value">{truncateUrl(channel.licenseString)}</span>
               </div>
             )}
-            <div className="meta-item">
-              <span className="meta-label">Player Engine</span>
-              <span className="meta-value">Shaka v4.3.0</span>
-            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

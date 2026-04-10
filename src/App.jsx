@@ -120,15 +120,19 @@ function App() {
           </div>
         </div>
         <div className="header-right">
+          <div className="badge-live-pulse">
+            <span className="pulse-dot"></span>
+            SYSTEM ONLINE
+          </div>
         </div>
       </header>
 
       <main className="app-main">
         {error && (
-          <div className="error-banner">
+          <div className="error-banner animate-fade-in">
             <span>⚠️</span>
             <p>{error}</p>
-            <button onClick={() => { setError(null); fetchConfig(); }}>Retry</button>
+            <button className="btn-primary" onClick={() => { setError(null); fetchConfig(); }}>Retry</button>
           </div>
         )}
 
@@ -147,7 +151,7 @@ function App() {
         )}
 
         {!loading && (
-          <>
+          <div className="animate-scale-in">
             {view === 'providers' && (
               <ProviderList providers={providers} onSelect={handleProviderClick} />
             )}
@@ -162,16 +166,21 @@ function App() {
                 setGroupFilter={setChannelGroup}
               />
             )}
-          </>
+          </div>
         )}
         
         {view === 'player' && selectedChannel && (
-          <PlayerView channel={selectedChannel} />
+          <div className="animate-scale-in">
+            <PlayerView channel={selectedChannel} />
+          </div>
         )}
       </main>
 
-      <footer style={{ textAlign: 'center', padding: '1.5rem', color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', zIndex: 10, position: 'relative' }}>
-        Made by Utkarsh Gupta (<a href="https://github.com/utkarshgupta188" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: '500' }}>@utkarshgupta188</a>)
+      <footer style={{ textAlign: 'center', padding: '3rem 1.5rem', color: 'var(--text-muted)', fontSize: '0.9rem', zIndex: 10, position: 'relative' }}>
+        <p>Premium High-Fidelity IPTV Experience</p>
+        <p style={{ marginTop: '8px' }}>
+          Made by Utkarsh Gupta • <a href="https://github.com/utkarshgupta188" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: '600' }}>@utkarshgupta188</a>
+        </p>
       </footer>
     </div>
   );

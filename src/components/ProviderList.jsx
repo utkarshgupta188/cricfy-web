@@ -8,9 +8,9 @@ export default function ProviderList({ providers, onSelect }) {
           .map((provider, i) => (
             <div
               key={i}
-              className="card provider-card glass-premium magnetic-card animate-fade-in"
+              className="provider-card glass-premium animate-fade-in"
               onClick={() => onSelect(provider)}
-              style={{ animationDelay: `${i * 0.05}s` }}
+              style={{ animationDelay: `${i * 0.08}s` }}
             >
               <div className="card-badge">Provider</div>
               <div className="card-image-container">
@@ -19,7 +19,7 @@ export default function ProviderList({ providers, onSelect }) {
                   alt={provider.title}
                   className="provider-logo"
                   onError={(e) => {
-                    e.target.src = 'https://placehold.co/120x120/1a1a2f/ff2e63?text=TV';
+                    e.target.src = 'https://placehold.co/120x120/101020/ff2e63?text=TV';
                   }}
                 />
               </div>
@@ -27,7 +27,7 @@ export default function ProviderList({ providers, onSelect }) {
                 <h3>{provider.title || 'Unknown Provider'}</h3>
                 <div className="card-footer">
                   <span className="channel-count">Live Content</span>
-                  <span className="action-hint">Browse →</span>
+                  <span className="action-hint">Explore →</span>
                 </div>
               </div>
             </div>
