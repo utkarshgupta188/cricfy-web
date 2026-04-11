@@ -9,13 +9,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const SECRET1 = '3368487a78594167534749382f68616d:557143766b766a656345497a38343256';
-const SECRET2 = '4d7165594743543441594b6f484b7254:6f484b725451755078387a6c386f4a2b';
+const PROVIDER_WORKER_URL = 'https://cricfy-providers.utkarshg.workers.dev';
 
-const FIREBASE_API_KEY = 'AIzaSyAh9jkEU0E_UYxH0m_BKAt-uUSTiTPqhb8';
-const FIREBASE_APP_ID = '1:963020218535:android:47ec53252c64fb3c9c7b82';
-const PROJECT_NUMBER = '963020218535';
-const PACKAGE_NAME = 'com.cricfy.tv';
 
 const CUSTOM_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0',
@@ -23,59 +18,6 @@ const CUSTOM_HEADERS = {
   'Cache-Control': 'no-cache, no-store',
 };
 
-const BROKEN_PROVIDERS = [
-  'JIO IND', 'SHOOQ PK', 'SAMSUNG TV',
-  'FANCODE BD 3', 'PRIME LIVE', 'IZZI GO', 'FANCODE BD', 'ZEE5 IN 2',
-  'CRICHD', 'ROAR ZONE', 'JIO CINEMA IND', 'WORLD TV', 'DEKHO 24 X 7', 'ICC TV', 'SONY BD',
-  'SUN DIRECT', 'TAPMAD PK', 'World Sports', 'FANCODE BD 2', 'SONYLIV',
-  'ZEE5 IN', 'JIOLIVE IND', 'LGTV IND', 'Prime Channel',
-  'TATAPLAY BD', 'VOOT BD', 'AYNA', 'WORLD TV', 'JAGOBD', 'JADOO', 'TOFFEE BD',
-  'AKASH', 'BDIX TV', 'AYNA 2', 'DARK TV', 'ZAP SPORTS',
-  'JIO IND2', 'JIO BD', 'Movies & Series'
-];
-
-function hexToBytes(hex) {
-  const bytes = [];
-  for (let i = 0; i < hex.length; i += 2) {
-    bytes.push(parseInt(hex.substr(i, 2), 16));
-  }
-  return bytes;
-}
-
-function parseKeyInfo(secret) {
-  const [keyHex, ivHex] = secret.split(':');
-  return {
-    key: CryptoJS.enc.Hex.parse(keyHex),
-    iv: CryptoJS.enc.Hex.parse(ivHex),
-  };
-}
-
-function tryDecrypt(cipherBase64, keyInfo) {
-  try {
-    const decrypted = CryptoJS.AES.decrypt(cipherBase64, keyInfo.key, {
-      iv: keyInfo.iv,
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7,
-    });
-    const text = decrypted.toString(CryptoJS.enc.Utf8);
-    if (text && (text.startsWith('{') || text.startsWith('[') || text.toLowerCase().includes('http'))) {
-      return text;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-function decryptData(encryptedBase64) {
-  const clean = encryptedBase64.replace(/[\n\r\s\t]/g, '');
-  const keys = [parseKeyInfo(SECRET1), parseKeyInfo(SECRET2)];
-  for (const keyInfo of keys) {
-    const result = tryDecrypt(clean, keyInfo);
-    if (result) return result;
-  }
-  return null;
-}
 
 function decryptContent(content) {
   content = content.trim();
@@ -172,75 +114,14 @@ function parseM3U(content) {
   return items;
 }
 
-app.get('/api/config', async (req, res) => {
-  try {
-    const url = `https://firebaseremoteconfig.googleapis.com/v1/projects/${PROJECT_NUMBER}/namespaces/firebase:fetch`;
-    const response = await axios.post(url, {
-      appInstanceId: crypto.randomUUID().replace(/-/g, ''),
-      appInstanceIdToken: '',
-      appId: FIREBASE_APP_ID,
-      countryCode: 'US',
-      languageCode: 'en-US',
-      platformVersion: '30',
-      timeZone: 'UTC',
-      appVersion: '5.0',
-      appBuild: '50',
-      packageName: PACKAGE_NAME,
-      sdkVersion: '22.1.0',
-      analyticsUserProperties: {},
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'X-Android-Package': PACKAGE_NAME,
-        'X-Goog-Api-Key': FIREBASE_API_KEY,
-        'X-Google-GFE-Can-Retry': 'yes',
-      },
-      timeout: 30000,
-    });
-
-    const entries = response.data?.entries || {};
-    const apiUrl = entries.cric_api2 || entries.cric_api1 || null;
-    res.json({ apiUrl });
-  } catch (e) {
-    console.error('Firebase config error:', e.message);
-    res.status(500).json({ error: 'Failed to fetch config' });
-  }
-});
 
 app.get('/api/providers', async (req, res) => {
   try {
-    const { apiUrl } = req.query;
-    if (!apiUrl) return res.status(400).json({ error: 'apiUrl required' });
-
-    const response = await axios.get(`${apiUrl}/cats.txt`, { headers: CUSTOM_HEADERS, timeout: 15000 });
-    const decrypted = decryptData(response.data);
-    if (!decrypted) return res.status(500).json({ error: 'Decryption failed' });
-
-    let providers = JSON.parse(decrypted);
-
-    if (Array.isArray(providers)) {
-      providers = providers.filter(p => {
-        const title = p.title || '';
-        const link = p.catLink || '';
-
-        const lowerTitle = title.trim().toLowerCase();
-
-        const isBlocked = BROKEN_PROVIDERS.some(b => b.trim().toLowerCase() === lowerTitle) || 
-                          lowerTitle.includes('samsung tv') || 
-                          lowerTitle.includes('sonyliv');
-        if (isBlocked) return false;
-
-        if (!link.startsWith('http')) return false;
-
-        return true;
-      });
-    }
-
-    res.json(providers);
+    const response = await axios.get(PROVIDER_WORKER_URL, { timeout: 15000 });
+    res.json(response.data);
   } catch (e) {
     console.error('Providers error:', e.message);
-    res.status(500).json({ error: 'Failed to fetch providers' });
+    res.status(500).json({ error: 'Failed to fetch providers via worker' });
   }
 });
 

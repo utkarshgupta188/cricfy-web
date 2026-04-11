@@ -8,7 +8,6 @@ import './App.css';
 const API_BASE = 'http://localhost:3001/api';
 
 function App() {
-  const [apiUrl, setApiUrl] = useState(null);
   const [providers, setProviders] = useState([]);
   const [channels, setChannels] = useState([]);
   const [selectedChannel, setSelectedChannel] = useState(null);
@@ -20,31 +19,15 @@ function App() {
   const [channelGroup, setChannelGroup] = useState('all');
 
   useEffect(() => {
-    fetchConfig();
+    fetchProviders();
   }, []);
 
-  async function fetchConfig() {
+
+  async function fetchProviders() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`${API_BASE}/config`);
-      const data = await res.json();
-      if (data.apiUrl) {
-        setApiUrl(data.apiUrl);
-        await fetchProviders(data.apiUrl);
-      } else {
-        setError('Could not fetch API configuration');
-      }
-    } catch (e) {
-      setError('Connection failed. Make sure the backend server is running on port 3001.');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function fetchProviders(url) {
-    try {
-      const res = await fetch(`${API_BASE}/providers?apiUrl=${encodeURIComponent(url)}`);
+      const res = await fetch(`${API_BASE}/providers`);
       const data = await res.json();
       if (Array.isArray(data)) {
         setProviders(data);
@@ -53,6 +36,8 @@ function App() {
       }
     } catch (e) {
       setError('Failed to load providers');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -132,7 +117,7 @@ function App() {
           <div className="error-banner animate-fade-in">
             <span>⚠️</span>
             <p>{error}</p>
-            <button className="btn-primary" onClick={() => { setError(null); fetchConfig(); }}>Retry</button>
+            <button className="btn-primary" onClick={() => { setError(null); fetchProviders(); }}>Retry</button>
           </div>
         )}
 
