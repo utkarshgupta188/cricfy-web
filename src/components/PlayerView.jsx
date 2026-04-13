@@ -83,9 +83,23 @@ export default function PlayerView({ channel }) {
           }
         });
 
-        if (channel.isDrm && channel.licenseString) {
-          const drmConfig = parseLicenseString(channel.licenseString, channel);
-          console.log('DRM config:', drmConfig, 'license:', channel.licenseString);
+        let licenseStr = channel.licenseString;
+        if (channel.isDrm && licenseStr) {
+          if (licenseStr.startsWith('http') && (licenseStr.includes('key.php') || licenseStr.includes('.json'))) {
+            try {
+              const fetchUrl = buildProxyUrl(licenseStr, channel);
+              const response = await fetch(fetchUrl);
+              const text = await response.text();
+              if (text.includes('"keys"')) {
+                licenseStr = text;
+              }
+            } catch (err) {
+              console.warn('Failed to pre-fetch clear keys:', err);
+            }
+          }
+
+          const drmConfig = parseLicenseString(licenseStr, channel);
+          console.log('DRM config:', drmConfig, 'license:', licenseStr);
           if (drmConfig) {
             if (drmConfig.type === 'clearkeys') {
               player.configure({
@@ -99,6 +113,8 @@ export default function PlayerView({ channel }) {
                 drm: {
                   servers: {
                     'org.w3.clearkey': proxyLicenseUrl,
+                    'com.widevine.alpha': proxyLicenseUrl,
+                    'com.microsoft.playready': proxyLicenseUrl
                   },
                 },
               });

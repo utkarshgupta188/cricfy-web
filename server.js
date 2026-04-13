@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.raw({ type: ['application/octet-stream', 'application/x-www-form-urlencoded', '*/*'], limit: '10mb' }));
 
 const PROVIDER_WORKER_URL = 'https://cricfy-providers.utkarshg.workers.dev';
 
@@ -131,7 +132,25 @@ app.get('/api/channels', async (req, res) => {
     if (!providerUrl) return res.status(400).json({ error: 'providerUrl required' });
 
     const response = await axios.get(providerUrl, { headers: CUSTOM_HEADERS, timeout: 15000 });
-    const content = decryptContent(response.data);
+    
+    if (typeof response.data === 'object' && Array.isArray(response.data)) {
+      const jsonChannels = response.data.map(c => ({
+        title: c.name || c.title || 'Unknown',
+        url: c.mpd_url || c.url || '',
+        tvgLogo: c.logo || c.tvgLogo || '',
+        groupTitle: c.group || c.groupTitle || '',
+        userAgent: c.user_agent || c.userAgent || '',
+        cookie: c.headers?.cookie || c.cookie || '',
+        referer: c.headers?.referer || c.referer || '',
+        licenseString: c.license_url || c.licenseString || '',
+        isDrm: !!(c.license_url || c.licenseString || c.isDrm),
+        headers: c.headers || {},
+      })).filter(c => c.url);
+      return res.json(jsonChannels);
+    }
+    
+    const contentData = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
+    const content = decryptContent(contentData);
     const channels = parseM3U(content);
     res.json(channels);
   } catch (e) {
@@ -140,7 +159,7 @@ app.get('/api/channels', async (req, res) => {
   }
 });
 
-app.get('/api/proxy', async (req, res) => {
+app.all('/api/proxy', async (req, res) => {
   try {
     const { url, referer, userAgent, cookie, ...extraHeaders } = req.query;
     if (!url) return res.status(400).json({ error: 'url required' });
@@ -172,10 +191,17 @@ app.get('/api/proxy', async (req, res) => {
     }
 
     const urlShort = finalUrl.length > 120 ? finalUrl.substring(0, 120) + '...' : finalUrl;
-    console.log(`Proxy →`, urlShort);
+    console.log(`Proxy ${req.method} →`, urlShort);
 
-    const response = await axios.get(finalUrl, {
+    const data = (req.method === 'POST' || req.method === 'PUT') ? req.body : undefined;
+    delete headers['host'];
+    delete headers['content-length'];
+
+    const response = await axios({
+      method: req.method,
+      url: finalUrl,
       headers,
+      data,
       responseType: 'arraybuffer',
       timeout: 30000,
       maxRedirects: 10,
