@@ -19,7 +19,7 @@ async function checkForUpdates() {
     if (!response.ok) return;
 
     const data = await response.json();
-    const latestVersion = data.tag_name.replace(/^v|v-/i, ''); // e.g. "v3.0.1" -> "3.0.1"
+    const latestVersion = data.tag_name.replace(/^v|v-/i, ''); // e.g. "v3.2.0" -> "3.2.0"
 
     if (latestVersion && latestVersion !== currentVersion) {
       const cmp = latestVersion.localeCompare(currentVersion, undefined, { numeric: true, sensitivity: 'base' });
