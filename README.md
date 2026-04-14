@@ -1,4 +1,4 @@
-# 🚀 CricfyTV Web Premium v3.0
+# 🚀 MeowfyTV Web Premium v3.1
 
 A high-fidelity, cinematic web interface for live TV streaming, meticulously crafted for a premium user experience and seamless cross-platform performance.
 
@@ -29,12 +29,12 @@ Every component is built using our custom **Glassmorphism 2.0** engine:
 
 ---
 
-## 📥 Get CricfyTV for Windows
+## 📥 Get MeowfyTV for Windows
 
-You can now download the standalone desktop version of CricfyTV for the best experience:
+You can now download the standalone desktop version of MeowfyTV for the best experience:
 
-1. Go to the [**GitHub Releases**](https://github.com/utkarshgupta188/cricfy-web/releases) page.
-2. Download the `CricfyTV-Setup-3.0.0.exe` installer.
+1. Go to the [**GitHub Releases**](https://github.com/utkarshgupta188/meowfy-tv/releases) page.
+2. Download the `MeowfyTV-Setup-3.1.0.exe` installer.
 3. Install and enjoy live TV with zero browser clutter.
 
 ---
@@ -47,8 +47,8 @@ You can now download the standalone desktop version of CricfyTV for the best exp
 
 ### 2. Installation
 ```bash
-git clone https://github.com/utkarshgupta188/cricfy-web.git
-cd cricfy-web
+git clone https://github.com/utkarshgupta188/meowfy-tv.git
+cd meowfy-tv
 npm install
 ```
 

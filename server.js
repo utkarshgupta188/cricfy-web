@@ -132,7 +132,7 @@ app.get('/api/channels', async (req, res) => {
     if (!providerUrl) return res.status(400).json({ error: 'providerUrl required' });
 
     const response = await axios.get(providerUrl, { headers: CUSTOM_HEADERS, timeout: 15000 });
-    
+
     if (typeof response.data === 'object' && Array.isArray(response.data)) {
       const jsonChannels = response.data.map(c => ({
         title: c.name || c.title || 'Unknown',
@@ -148,7 +148,7 @@ app.get('/api/channels', async (req, res) => {
       })).filter(c => c.url);
       return res.json(jsonChannels);
     }
-    
+
     const contentData = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
     const content = decryptContent(contentData);
     const channels = parseM3U(content);
@@ -234,5 +234,5 @@ app.use((req, res) => {
 
 const PORT = 3001;
 app.listen(PORT, () => {
-  console.log(`🚀 Cricfy Backend running on http://localhost:${PORT}`);
+  console.log(`🚀 MeowfyTV Backend running on http://localhost:${PORT}`);
 });

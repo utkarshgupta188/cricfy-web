@@ -89,7 +89,7 @@ function App() {
         <div className="aurora-blob blob-2"></div>
         <div className="aurora-blob blob-3"></div>
       </div>
-      
+
       <header className="app-header">
         <div className="header-left">
           {view !== 'providers' && (
@@ -100,8 +100,8 @@ function App() {
             </button>
           )}
           <div className="logo animate-fade-in">
-            <span className="logo-icon">📡</span>
-            <h1 className="premium-font">CRICFY<span style={{ color: 'var(--accent)', marginLeft: '2px' }}>TV</span></h1>
+            <span className="logo-icon">🐱</span>
+            <h1 className="premium-font">MEOWFY<span style={{ color: 'var(--accent)', marginLeft: '2px' }}>TV</span></h1>
           </div>
         </div>
         <div className="header-right">
@@ -153,7 +153,7 @@ function App() {
             )}
           </div>
         )}
-        
+
         {view === 'player' && selectedChannel && (
           <div className="animate-scale-in">
             <PlayerView channel={selectedChannel} />

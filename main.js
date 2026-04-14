@@ -10,9 +10,9 @@ const __dirname = path.dirname(__filename);
 async function checkForUpdates() {
   try {
     const currentVersion = app.getVersion();
-    const response = await fetch('https://api.github.com/repos/utkarshgupta188/cricfy-web/releases/latest', {
+    const response = await fetch('https://api.github.com/repos/utkarshgupta188/meowfy-tv/releases/latest', {
       headers: {
-        'User-Agent': 'CricfyTV-App'
+        'User-Agent': 'MeowfyTV-App'
       }
     });
 
@@ -27,7 +27,7 @@ async function checkForUpdates() {
         const { response: btnIndex } = await dialog.showMessageBox({
           type: 'info',
           title: 'Update Available',
-          message: `A new version of CricfyTV (${latestVersion}) is available.\nYou are currently on version ${currentVersion}.\n\nWould you like to download the new version?`,
+          message: `A new version of MeowfyTV (${latestVersion}) is available.\nYou are currently on version ${currentVersion}.\n\nWould you like to download the new version?`,
           buttons: ['Download', 'Later'],
           defaultId: 0,
           cancelId: 1
@@ -60,7 +60,7 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
-    title: 'CricfyTV',
+    title: 'MeowfyTV',
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: false,

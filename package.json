@@ -1,5 +1,5 @@
 {
-  "name": "cricfy-web",
+  "name": "meowfy-web",
   "private": true,
   "version": "3.1.0",
   "author": "Utkarsh Gupta",
@@ -16,8 +16,8 @@
     "preview": "vite preview"
   },
   "build": {
-    "appId": "com.cricfytv.app",
-    "productName": "CricfyTV",
+    "appId": "com.meowfy.tv",
+    "productName": "MeowfyTV",
     "directories": {
       "output": "release"
     },
