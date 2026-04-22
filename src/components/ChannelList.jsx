@@ -1,11 +1,11 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 
-const INITIAL_BATCH = 60;
-const BATCH_SIZE = 40;
+const INITIAL_BATCH = 30;
+const BATCH_SIZE = 20;
 
-export default function ChannelList({ 
-  channels, 
-  providerTitle, 
+export default function ChannelList({
+  channels,
+  providerTitle,
   onSelect,
   filter,
   setFilter,
@@ -78,7 +78,7 @@ export default function ChannelList({
 
       <div className={`genre-ribbon-container animate-fade-in ${isGroupsExpanded ? 'is-expanded' : ''}`}>
         <div className="genre-ribbon">
-          <button 
+          <button
             className={`genre-tab expansion-toggle glass-premium ${isGroupsExpanded ? 'active' : ''}`}
             onClick={() => setIsGroupsExpanded(!isGroupsExpanded)}
             title="Browse all categories"
@@ -132,12 +132,12 @@ export default function ChannelList({
             tabIndex="0"
             role="button"
             aria-label={`Watch ${ch.title}`}
-            style={{ 
-              animationDelay: i < 50 ? `${i * 0.04}s` : '0s' 
+            style={{
+              animationDelay: i < 50 ? `${i * 0.04}s` : '0s'
             }}
           >
             <div className="card-status-bar">
-              <button 
+              <button
                 className={`favorite-btn ${favorites.some(f => f.title === ch.title) ? 'is-favorite' : ''}`}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -173,7 +173,7 @@ export default function ChannelList({
               <div className="logo-fallback" style={{ display: ch.tvgLogo ? 'none' : 'flex' }}>
                 {ch.title.charAt(0)}
               </div>
-              
+
               <div className="hover-play-overlay">
                 <div className="play-icon-circle">
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
@@ -182,7 +182,7 @@ export default function ChannelList({
                 </div>
               </div>
             </div>
-            
+
             <div className="channel-info-minimal">
               <h3 className="channel-name-premium">{ch.title}</h3>
               {ch.groupTitle && (

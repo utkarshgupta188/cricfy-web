@@ -7,6 +7,13 @@ import './App.css';
 
 const API_BASE = 'http://localhost:3001/api';
 
+// Analytics Helper
+const trackEvent = (eventName, params = {}) => {
+  if (window.gtag) {
+    window.gtag('event', eventName, params);
+  }
+};
+
 function App() {
   const [providers, setProviders] = useState([]);
   const [channels, setChannels] = useState([]);
@@ -28,6 +35,9 @@ function App() {
 
   useEffect(() => {
     fetchProviders();
+    const platform = /Android/i.test(navigator.userAgent) ? 'android' : 
+                    (/Electron/i.test(navigator.userAgent) ? 'electron' : 'web');
+    trackEvent('app_open', { platform });
   }, []);
 
   // TV/Keyboard: Auto-focus first element on view change
@@ -88,6 +98,7 @@ function App() {
         setChannelFilter('');
         setChannelGroup('all');
         setView('channels');
+        trackEvent('provider_select', { provider_name: provider.title });
       } else {
         setError('No channels found');
       }
@@ -101,6 +112,10 @@ function App() {
   function handleChannelClick(channel) {
     setSelectedChannel(channel);
     setView('player');
+    trackEvent('channel_select', { 
+      channel_name: channel.title,
+      provider_name: selectedProviderTitle 
+    });
   }
 
   function toggleFavorite(channel) {
